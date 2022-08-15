@@ -458,48 +458,6 @@ mod_indvExpPatVisits_server <- function(input, output, session, datafile, loaded
                   ,"Download Report with Plot Above")
     })
     
-    output$batchDownReport <- downloadHandler(
-      filename = function() {
-        paste(paste(input$plot_adam, "Params", usubjid(), sep = '_'), sep = '.', switch(
-          input$format, PDF = 'pdf', HTML = 'html'
-        ))
-      },
-      
-      content = function(file) {
-        # Copy the report file to a temporary directory before processing it, in
-        # case we don't have write permissions to the current working dir (which
-        # can happen when deployed).
-        tempReport <- file.path(tempdir(), switch(input$format, 
-                                                  HTML = "batchDownload_html.Rmd",
-                                                  PDF = "batchDownload_pdf.Rmd"))
-        file.copy(switch(input$format, 
-                         HTML = "inst/app/www/batchDownload_html.Rmd",
-                         PDF = "inst/app/www/batchDownload_pdf.Rmd"), tempReport, overwrite = TRUE)
-        
-        
-        # Knit the document: passing in the `params` list is optional by default but will
-        # make it more difficult to debug, or if in new envir = eval it in a
-        # child of the global environment (this isolates the code in the document
-        # from the code in this app). Also attached progress bar onto progress
-        progress <- Progress$new(max = np + 3)
-        progress$set(message = "Rendering Report...")
-        on.exit(progress$close())
-        rmarkdown::render(
-          input = switch(input$format, 
-                         HTML = "inst/app/www/batchDownload_html.Rmd",
-                         PDF = "inst/app/www/batchDownload_pdf.Rmd"),
-          output_file = file,
-          params = list(
-            bds_data_ = lb_data,
-            report_summary = paste0("Data from ", input$plot_adam, " with ", np, " paramcds for patient ", usubjid(),"."),
-            user_notes = input$user_batch_notes,
-            html_filters = v_applied_filters_HTML_on_graph()
-          )
-        )
-      }
-    )
-    
-    
     # Create DT object with variables of interest, if they exist
     output$DataTable <- DT::renderDataTable(server = FALSE, { 
       # server = FALSE ALLOWS downloading all rows, and not just displayed rows
