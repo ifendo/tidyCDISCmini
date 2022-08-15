@@ -1,6 +1,3 @@
----
-output: github_document
----
 
 # tidyCDISCmini
 
@@ -12,8 +9,7 @@ remotes::install_github("ifendo/tidyCDISCmini")
 
 ## How to launch the app?
 
-```r
+``` r
 library(tidyCDISCmini)
 run_app()
 ```
-
